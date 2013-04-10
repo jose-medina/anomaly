@@ -1,0 +1,4 @@
+-> Enable GPU in Chromium and Chrome
+	1. Just write in the adress bar of your chrome: chrome://flags
+	2. And enable the ”Override software rendering list Mac, Windows, Linux, Chrome OS“.
+
