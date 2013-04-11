@@ -29,13 +29,13 @@ anomaly.Core.prototype.initialize = function()
     this.scene.matrixAutoUpdate = true;
 
     this.scene.add( self.cube );
-    
+
     this.renderer = new THREE.CanvasRenderer();
     this.renderer.setSize( window.innerWidth, window.innerHeight );
 
     document.body.appendChild( self.renderer.domElement );
 
-    this.bindListeners();
+    document.addEventListener("keydown", this.onDocumentKeyDown.bind(window, self), false);
 
 }
 
@@ -51,22 +51,15 @@ anomaly.Core.prototype.loop = function()
     this.renderer.render( self.scene, self.camera );
 }
 
-anomaly.Core.prototype.bindListeners = function()
+anomaly.Core.prototype.onDocumentKeyDown = function(coreInstance, event)
 {
-    var self = this;
-
-    $(document).on("keydown", function(event)
+    if (event.keyCode == 87)
     {
-
-        if (event.keyCode == 87)
-        {
-            self.cube.rotation.x += 0.1;
-        }
-        else if (event.keyCode == 83)
-        {
-            self.cube.rotation.x -= 0.1;
-        }
-
-    });
+        coreInstance.cube.rotation.x += 0.1;
+    }
+    else if (event.keyCode == 83)
+    {
+        coreInstance.cube.rotation.x -= 0.1;
+    }
 
 }
