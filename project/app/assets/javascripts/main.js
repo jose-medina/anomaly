@@ -1,6 +1,6 @@
 $(document).ready(function()
 {
-    var spinningCube = new anomaly.SpinningCube();
-    spinningCube.initialize();
-    spinningCube.loop();
+    var core = new anomaly.Core();
+    core.initialize();
+    core.loop();
 });
