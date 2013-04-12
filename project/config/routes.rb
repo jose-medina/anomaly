@@ -6,7 +6,7 @@ Project::Application.routes.draw do
 
   get "sign_up" => "users#new", :as => "sign_up"
 
-  root :to => "users#new"
+  root :to => "home#index"
 
   resources :users
 

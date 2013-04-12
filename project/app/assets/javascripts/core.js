@@ -14,7 +14,8 @@ anomaly.Core = function()
     this.scene;
     this.renderer;
 
-    this.cubeThreeJsObject = new anomaly.SpinningCube().initialize();
+    this.cube = new anomaly.SpinningCube();
+    this.cubeThreeJsObject = this.cube.initialize();
     this.environment = new anomaly.Environment();
     this.environmentThreeJsObject = this.environment.initialize();
     this.environmentTarget = this.environment.target;
@@ -26,7 +27,7 @@ anomaly.Core.prototype.initialize = function()
     var self = this;
 
     this.camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
-    this.camera.position.z = 1000;
+    this.camera.position.z = 0;
 
     this.scene = new THREE.Scene();
     this.scene.matrixAutoUpdate = true;
@@ -76,14 +77,9 @@ anomaly.Core.prototype.onWindowResize = function()
 
 anomaly.Core.prototype.onDocumentKeyDown = function(coreInstance, event)
 {
-    if (event.keyCode == 87)
-    {
-        coreInstance.cubeThreeJsObject.rotation.x += 0.1;
-    }
-    else if (event.keyCode == 83)
-    {
-        coreInstance.cubeThreeJsObject.rotation.x -= 0.1;
-    }
+
+    // Cube event
+    coreInstance.cube.onDocumentKeyDown(event);
 
 }
 

@@ -49,7 +49,7 @@ anomaly.Environment.prototype.initialize = function()
 
     ];
 
-    this.enviroment = new THREE.Mesh( new THREE.CubeGeometry( window.innerWidth, window.innerHeight, window.innerWidth, 7, 7, 7 ), new THREE.MeshFaceMaterial( this.material ) );
+    this.enviroment = new THREE.Mesh( new THREE.CubeGeometry( window.innerWidth, window.innerHeight, window.innerWidth, 70, 70, 70 ), new THREE.MeshFaceMaterial( this.material ) );
     this.enviroment.scale.x = - 1;
 
     return this.enviroment;
@@ -114,6 +114,7 @@ anomaly.Environment.prototype.onDocumentMouseMove = function( event )
 
         this.lon = ( this.onPointerDownPointerX - event.clientX ) * 0.1 + this.onPointerDownLon;
         this.lat = ( event.clientY - this.onPointerDownPointerY ) * 0.1 + this.onPointerDownLat;
+        this.updateEnvironment();
     }
 }
 
@@ -121,12 +122,12 @@ anomaly.Environment.prototype.onDocumentMouseUp = function( event )
 {
 
     this.isUserInteracting = false;
+    this.updateEnvironment();
 }
     
 anomaly.Environment.prototype.onDocumentMouseWheel = function( event )
 {
-
-
+    this.updateEnvironment();
 }
     
 anomaly.Environment.prototype.onDocumentTouchStart = function( event )
@@ -155,5 +156,6 @@ anomaly.Environment.prototype.onDocumentTouchMove = function( event )
         this.lon = ( this.onPointerDownPointerX - event.touches[0].pageX ) * 0.1 + this.onPointerDownLon;
         this.lat = ( event.touches[0].pageY - this.onPointerDownPointerY ) * 0.1 + this.onPointerDownLat;
 
+        this.updateEnvironment();
     }
 }

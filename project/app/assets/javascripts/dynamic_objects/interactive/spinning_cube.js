@@ -10,9 +10,9 @@ anomaly.SpinningCube = function()
         return "anomaly.SpinningCube";
     }
 
-    this.cubeX = 200;
-    this.cubeY = 200;
-    this.cubeZ = 200;
+    this.cubeX = 20;
+    this.cubeY = 20;
+    this.cubeZ = 20;
     
     this.geometry;
     this.material;
@@ -39,5 +39,22 @@ anomaly.SpinningCube.prototype.initialize = function()
     this.cube = new THREE.Mesh(self.geometry, self.material );
     this.cube.matrixWorldNeedsUpdate = true;
 
+    this.cube.position.z = -100;
+
     return this.cube;
+}
+
+anomaly.SpinningCube.prototype.onDocumentKeyDown = function(event)
+{
+    if (event.keyCode == 87)
+    {
+        this.cube.rotation.x += 0.1;
+        this.cube.position.z += 0.1;
+    }
+    else if (event.keyCode == 83)
+    {
+        this.cube.rotation.x -= 0.1;
+        this.cube.position.z -= 0.1;
+    }
+
 }
