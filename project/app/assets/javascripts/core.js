@@ -20,6 +20,8 @@ anomaly.Core = function()
     this.environmentThreeJsObject = this.environment.initialize();
     this.environmentTarget = this.environment.target;
 
+    this.contador = 0; 
+
 }
 
 anomaly.Core.prototype.initialize = function()
@@ -60,8 +62,15 @@ anomaly.Core.prototype.loop = function()
     // note: three.js includes requestAnimationFrame shim
     requestAnimationFrame( this.loop.bind(this) );  
 
-    //this.cubeThreeJsObject.rotation.x += 0.01;
-    this.cubeThreeJsObject.rotation.y += 0.1;
+    this.contador += 0.1
+
+    var levitation = Math.sin(this.contador)/2;
+
+    console.log("levitation: " + levitation + ", position y: " + this.cubeThreeJsObject.position.y);
+    this.cubeThreeJsObject.position.y += levitation;
+
+    this.cubeThreeJsObject.rotation.x += 0.01;
+    this.cubeThreeJsObject.rotation.y += 0.01;
 
     this.renderer.render( self.scene, self.camera );
 }

@@ -48,13 +48,26 @@ anomaly.SpinningCube.prototype.onDocumentKeyDown = function(event)
 {
     if (event.keyCode == 87)
     {
-        this.cube.rotation.x += 0.1;
-        this.cube.position.z += 0.1;
+        this.cube.position.z += 1;
     }
     else if (event.keyCode == 83)
     {
-        this.cube.rotation.x -= 0.1;
-        this.cube.position.z -= 0.1;
+        this.cube.position.z -= 1;
     }
-
+    else if (event.keyCode == 65)
+    {
+        this.cube.position.x -= 1;
+    }
+    else if (event.keyCode == 68)
+    {
+        this.cube.position.x += 1;
+    }
+    else if (event.keyCode == 38)
+    {
+        this.cube.position.y += 1;
+    }
+    else if (event.keyCode == 40)
+    {
+        this.cube.position.y -= 1;        
+    }
 }
