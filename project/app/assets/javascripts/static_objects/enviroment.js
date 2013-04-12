@@ -49,7 +49,7 @@ anomaly.Environment.prototype.initialize = function()
 
     ];
 
-    this.enviroment = new THREE.Mesh( new THREE.CubeGeometry( window.innerWidth, window.innerHeight, window.innerWidth, 70, 70, 70 ), new THREE.MeshFaceMaterial( this.material ) );
+    this.enviroment = new THREE.Mesh( new THREE.CubeGeometry( window.innerWidth, window.innerHeight, window.innerWidth, 7, 7, 7 ), new THREE.MeshFaceMaterial( this.material ) );
     this.enviroment.scale.x = - 1;
 
     return this.enviroment;
