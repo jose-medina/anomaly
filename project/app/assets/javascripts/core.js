@@ -19,6 +19,8 @@ anomaly.Core = function()
     this.environment = new anomaly.Environment();
     this.environmentThreeJsObject = this.environment.initialize();
     this.environmentTarget = this.environment.target;
+    this.viewportWidth = window.innerWidth;
+    this.viewportHeight = window.innerHeight;
 
     this.contador = 0; 
 
@@ -28,7 +30,7 @@ anomaly.Core.prototype.initialize = function()
 {
     var self = this;
 
-    this.camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
+    this.camera = new THREE.PerspectiveCamera( 75, this.viewportWidth / this.viewportHeight, 1, 10000 );
     this.camera.position.z = 0;
 
     this.scene = new THREE.Scene();
@@ -38,7 +40,7 @@ anomaly.Core.prototype.initialize = function()
     this.scene.add( self.environmentThreeJsObject );
 
     this.renderer = new THREE.CanvasRenderer();
-    this.renderer.setSize( window.innerWidth, window.innerHeight );
+    this.renderer.setSize( this.viewportWidth, this.viewportHeight );
 
     document.body.appendChild( self.renderer.domElement );
 
@@ -52,7 +54,7 @@ anomaly.Core.prototype.initialize = function()
     document.addEventListener( "touchstart", this.onDocumentTouchStart.bind(window, self), false );
     document.addEventListener( "touchmove", this.onDocumentTouchMove.bind(window, self), false );
 
-    // window.addEventListener( 'resize', onWindowResize, false );
+    window.addEventListener( 'resize', this.onWindowResize.bind(window, self), false );
 
 }
 
@@ -66,7 +68,7 @@ anomaly.Core.prototype.loop = function()
 
     var levitation = Math.sin(this.contador)/2;
 
-    console.log("levitation: " + levitation + ", position y: " + this.cubeThreeJsObject.position.y);
+    //console.log("levitation: " + levitation + ", position y: " + this.cubeThreeJsObject.position.y);
     this.cubeThreeJsObject.position.y += levitation;
 
     this.cubeThreeJsObject.rotation.x += 0.01;
@@ -75,13 +77,16 @@ anomaly.Core.prototype.loop = function()
     this.renderer.render( self.scene, self.camera );
 }
 
-anomaly.Core.prototype.onWindowResize = function()
+anomaly.Core.prototype.onWindowResize = function( coreInstance, event )
 {
 
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
+    coreInstance.viewportWidth = window.innerWidth;
+    coreInstance.viewportHeight = window.innerHeight;
 
-    renderer.setSize( window.innerWidth, window.innerHeight );
+    coreInstance.camera.aspect = coreInstance.viewportWidth / coreInstance.viewportHeight;
+    coreInstance.camera.updateProjectionMatrix();
+
+    coreInstance.renderer.setSize( coreInstance.viewportWidth, coreInstance.viewportHeight );
 }
 
 anomaly.Core.prototype.onDocumentKeyDown = function(coreInstance, event)
@@ -120,11 +125,10 @@ anomaly.Core.prototype.onDocumentMouseUp = function( coreInstance, event )
     
 anomaly.Core.prototype.onDocumentMouseWheel = function( coreInstance, event )
 {
-    //Environment event
-    //coreInstance.environment.onDocumentMouseWheel(event);
-    coreInstance.camera.fov -= event.wheelDeltaY * 0.05;
-    coreInstance.camera.updateProjectionMatrix();
-    coreInstance.camera.lookAt( coreInstance.environmentTarget );
+    //Core event
+    // coreInstance.camera.fov -= event.wheelDeltaY * 0.05;
+    // coreInstance.camera.updateProjectionMatrix();
+    // coreInstance.camera.lookAt( coreInstance.environmentTarget );
 
 }
     
