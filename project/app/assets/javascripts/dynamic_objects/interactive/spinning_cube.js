@@ -49,28 +49,18 @@ anomaly.SpinningCube.prototype.initialize = function()
 
 anomaly.SpinningCube.prototype.onDocumentKeyDown = function(event)
 {
-    if (event.keyCode == 87)
-    {
-        this.object3D.position.z += 1;
-    }
-    else if (event.keyCode == 83)
-    {
-        this.object3D.position.z -= 1;
-    }
-    else if (event.keyCode == 65)
-    {
-        this.object3D.position.x -= 1;
-    }
-    else if (event.keyCode == 68)
-    {
-        this.object3D.position.x += 1;
-    }
-    else if (event.keyCode == 38)
-    {
-        this.object3D.position.y += 1;
-    }
-    else if (event.keyCode == 40)
-    {
-        this.object3D.position.y -= 1;        
+    switch( event.keyCode ) {
+        // Z position +1
+        case 87: this.object3D.position.z += 1; break;
+        // Z position -1
+        case 83: this.object3D.position.z -= 1; break;
+        // X position -1
+        case 65: this.object3D.position.x -= 1; break;
+        // X position +1
+        case 68: this.object3D.position.x += 1; break;
+        // Y position +1
+        case 38: this.object3D.position.y += 1; break;
+        // Y position -1
+        case 40: this.object3D.position.y -= 1; break;
     }
 }
