@@ -66,13 +66,13 @@ anomaly.Core.prototype.loop = function()
 
     this.contador += 0.1
 
-    var levitation = Math.sin(this.contador)/2;
+    var levitation = Math.sin(this.contador);
 
     //console.log("levitation: " + levitation + ", position y: " + this.cubeThreeJsObject.position.y);
     this.cubeThreeJsObject.position.y += levitation;
 
-    this.cubeThreeJsObject.rotation.x += 0.01;
-    this.cubeThreeJsObject.rotation.y += 0.01;
+    this.cubeThreeJsObject.rotation.x += 0.1;
+    this.cubeThreeJsObject.rotation.y += 0.1;
 
     this.renderer.render( self.scene, self.camera );
 }

@@ -10,13 +10,17 @@ anomaly.SpinningCube = function()
         return "anomaly.SpinningCube";
     }
 
-    this.cubeX = 20;
-    this.cubeY = 20;
-    this.cubeZ = 20;
+    this.object3DX = 20;
+    this.object3DY = 20;
+    this.object3DZ = 20;
     
-    this.geometry;
-    this.material;
-    this.cube;
+    this.geometry1;
+    this.geometry2;
+    this.material1;
+    this.material2;
+    // this.geometry;
+    // this.material;
+    this.object3D;
 
 }
 
@@ -24,50 +28,49 @@ anomaly.SpinningCube.prototype.initialize = function()
 {
     var self = this;
 
-    this.geometry = new THREE.CubeGeometry( this.cubeX, this.cubeY, this.cubeZ );
-    this.geometry.verticesNeedUpdate = true;
-    this.geometry.elementsNeedUpdate = true;
-    this.geometry.morphTargetsNeedUpdate = true;
-    this.geometry.uvsNeedUpdate = true;
-    this.geometry.normalsNeedUpdate = true;
-    this.geometry.colorsNeedUpdate = true;
-    this.geometry.tangentsNeedUpdate = true;
-    this.geometry.dynamic = true;
+    this.geometry1 = new THREE.SphereGeometry(100,26,100);
+    this.geometry2 = new THREE.SphereGeometry(40,44,40);
+    
+    this.material1 = new THREE.MeshBasicMaterial( { color: 0x0000FF } );
+    this.material2 = new THREE.MeshBasicMaterial( { color: 0x0000FF } );
+    //THREE.GeometryUtils.merge(this.geometry1,this.geometry2);
 
-    this.material = new THREE.MeshBasicMaterial( { color: 0xff0000, wireframe: true } );
+    this.espher1 = new THREE.Mesh( this.geometry1, this.material1 );
+    this.espher2 = new THREE.Mesh( this.geometry2, this.material2 );
+    this.object3D = new THREE.Object3D();
 
-    this.cube = new THREE.Mesh(self.geometry, self.material );
-    this.cube.matrixWorldNeedsUpdate = true;
+    this.object3D.add(this.espher1);
+    this.object3D.add(this.espher2);
 
-    this.cube.position.z = -100;
+    this.object3D.position.z = -100;
 
-    return this.cube;
+    return this.object3D;
 }
 
 anomaly.SpinningCube.prototype.onDocumentKeyDown = function(event)
 {
     if (event.keyCode == 87)
     {
-        this.cube.position.z += 1;
+        this.object3D.position.z += 1;
     }
     else if (event.keyCode == 83)
     {
-        this.cube.position.z -= 1;
+        this.object3D.position.z -= 1;
     }
     else if (event.keyCode == 65)
     {
-        this.cube.position.x -= 1;
+        this.object3D.position.x -= 1;
     }
     else if (event.keyCode == 68)
     {
-        this.cube.position.x += 1;
+        this.object3D.position.x += 1;
     }
     else if (event.keyCode == 38)
     {
-        this.cube.position.y += 1;
+        this.object3D.position.y += 1;
     }
     else if (event.keyCode == 40)
     {
-        this.cube.position.y -= 1;        
+        this.object3D.position.y -= 1;        
     }
 }
