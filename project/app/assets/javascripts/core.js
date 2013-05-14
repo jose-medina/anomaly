@@ -64,15 +64,15 @@ anomaly.Core.prototype.loop = function()
     // note: three.js includes requestAnimationFrame shim
     requestAnimationFrame( this.loop.bind(this) );  
 
-    this.contador += 0.1
+    this.contador += 0.01
 
     var levitation = Math.sin(this.contador);
 
     //console.log("levitation: " + levitation + ", position y: " + this.cubeThreeJsObject.position.y);
-    this.cubeThreeJsObject.position.y += levitation;
+    this.cubeThreeJsObject.position.y += levitation * 0.1;
 
-    this.cubeThreeJsObject.rotation.x += 0.1;
-    this.cubeThreeJsObject.rotation.y += 0.1;
+    //this.cubeThreeJsObject.rotation.x += 0.1;
+    this.cubeThreeJsObject.rotation.y += 0.01;
 
     this.renderer.render( self.scene, self.camera );
 }

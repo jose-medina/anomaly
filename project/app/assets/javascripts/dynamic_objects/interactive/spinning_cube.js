@@ -28,21 +28,33 @@ anomaly.SpinningCube.prototype.initialize = function()
 {
     var self = this;
 
-    this.geometry1 = new THREE.SphereGeometry(100,26,100);
-    this.geometry2 = new THREE.SphereGeometry(40,44,40);
+    this.geometry1 = new THREE.SphereGeometry(100,100,10);
+    this.geometry2 = new THREE.SphereGeometry(40,44,10);
     
-    this.material1 = new THREE.MeshBasicMaterial( { color: 0x0000FF } );
-    this.material2 = new THREE.MeshBasicMaterial( { color: 0x0000FF } );
-    //THREE.GeometryUtils.merge(this.geometry1,this.geometry2);
+    this.material1 = new THREE.MeshBasicMaterial(
+    {
+        wireframe: false,
+        map: THREE.ImageUtils.loadTexture('assets/dynamic_objects/sphere_1/jupiter.jpg'),
+        overdraw: true
+    });
+
+    this.material2 = new THREE.MeshBasicMaterial(    
+    {
+        wireframe: false,
+        color: 0x000000,
+        overdraw: true
+    });
+
+    THREE.GeometryUtils.merge(this.geometry1,this.geometry2);
 
     this.espher1 = new THREE.Mesh( this.geometry1, this.material1 );
     this.espher2 = new THREE.Mesh( this.geometry2, this.material2 );
     this.object3D = new THREE.Object3D();
 
     this.object3D.add(this.espher1);
-    this.object3D.add(this.espher2);
+    //this.object3D.add(this.espher2);
 
-    this.object3D.position.z = -100;
+    this.object3D.position.z = -400;
 
     return this.object3D;
 }

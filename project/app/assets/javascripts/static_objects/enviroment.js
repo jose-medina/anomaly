@@ -31,8 +31,8 @@ anomaly.Environment.prototype.initialize = function()
 {
 
     this.texturePlaceholder = document.createElement( 'canvas' );
-    this.texturePlaceholder.width = 1280;
-    this.texturePlaceholder.height = 1280;
+    // this.texturePlaceholder.width = 1280;
+    // this.texturePlaceholder.height = 1280;
 
     this.context = this.texturePlaceholder.getContext( '2d' );
     this.context.fillStyle = 'rgb( 200, 200, 200 )';
