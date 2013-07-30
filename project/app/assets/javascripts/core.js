@@ -28,18 +28,22 @@ anomaly.Core = function()
 
 anomaly.Core.prototype.initialize = function()
 {
-    var self = this;
+    var self = this,
+        ambient = new THREE.AmbientLight( 0xffffff ),
+        pointLight = new THREE.PointLight( 0xffffff, 2 );
 
     this.camera = new THREE.PerspectiveCamera( 75, this.viewportWidth / this.viewportHeight, 1, 10000 );
     this.camera.position.z = 0;
 
     this.scene = new THREE.Scene();
     this.scene.matrixAutoUpdate = true;
+    this.scene.add(ambient);
+    this.scene.add(pointLight);
 
     this.scene.add( self.cubeThreeJsObject );
     this.scene.add( self.environmentThreeJsObject );
 
-    this.renderer = new THREE.CanvasRenderer();
+    this.renderer = new THREE.WebGLRenderer({antialias:true});
     this.renderer.setSize( this.viewportWidth, this.viewportHeight );
 
     document.body.appendChild( self.renderer.domElement );

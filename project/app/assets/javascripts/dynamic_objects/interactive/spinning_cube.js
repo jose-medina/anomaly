@@ -18,19 +18,30 @@ anomaly.SpinningCube = function()
     this.geometry2;
     this.material1;
     this.material2;
-    // this.geometry;
-    // this.material;
+    
+    this.reflectionMaterial;
+
     this.object3D;
 
 }
 
 anomaly.SpinningCube.prototype.initialize = function()
 {
-    var self = this;
+    var self = this,
+        environmentMaterialUrls = [
+            'assets/static_objects/environment/px.jpg', // right
+            'assets/static_objects/environment/nx.jpg', // left
+            'assets/static_objects/environment/py.jpg', // top
+            'assets/static_objects/environment/ny.jpg', // bottom
+            'assets/static_objects/environment/pz.jpg', // back
+            'assets/static_objects/environment/nz.jpg'  // front
+        ];
+
+    this.reflectionMaterial = THREE.ImageUtils.loadTextureCube(environmentMaterialUrls);
 
     this.geometry1 = new THREE.SphereGeometry(100,100,10);
     this.geometry2 = new THREE.SphereGeometry(40,44,10);
-    
+
     this.material1 = new THREE.MeshBasicMaterial(
     {
         wireframe: false,
@@ -40,9 +51,8 @@ anomaly.SpinningCube.prototype.initialize = function()
 
     this.material2 = new THREE.MeshBasicMaterial(    
     {
-        wireframe: false,
-        color: 0x000000,
-        overdraw: true
+        color: 0xcccccc,
+        envMap: self.reflectionMaterial
     });
 
     THREE.GeometryUtils.merge(this.geometry1,this.geometry2);
@@ -51,8 +61,8 @@ anomaly.SpinningCube.prototype.initialize = function()
     this.espher2 = new THREE.Mesh( this.geometry2, this.material2 );
     this.object3D = new THREE.Object3D();
 
-    this.object3D.add(this.espher1);
-    //this.object3D.add(this.espher2);
+    //this.object3D.add(this.espher1);
+    this.object3D.add(this.espher2);
 
     this.object3D.position.z = -400;
 

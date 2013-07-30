@@ -38,16 +38,18 @@ anomaly.Environment.prototype.initialize = function()
     this.context.fillStyle = 'rgb( 200, 200, 200 )';
     this.context.fillRect( 0, 0, this.texturePlaceholder.width, this.texturePlaceholder.height );
 
-    this.material = [
+    this.materialUrls = [
 
-        this.loadTexture( 'assets/static_objects/environment/px.jpg' ), // right
-        this.loadTexture( 'assets/static_objects/environment/nx.jpg' ), // left
-        this.loadTexture( 'assets/static_objects/environment/py.jpg' ), // top
-        this.loadTexture( 'assets/static_objects/environment/ny.jpg' ), // bottom
-        this.loadTexture( 'assets/static_objects/environment/pz.jpg' ), // back
-        this.loadTexture( 'assets/static_objects/environment/nz.jpg' )  // front
+        'assets/static_objects/environment/px.jpg', // right
+        'assets/static_objects/environment/nx.jpg', // left
+        'assets/static_objects/environment/py.jpg', // top
+        'assets/static_objects/environment/ny.jpg', // bottom
+        'assets/static_objects/environment/pz.jpg', // back
+        'assets/static_objects/environment/nz.jpg'  // front
 
     ];
+
+    this.material = this.loadTexture(this.materialUrls);
 
     this.enviroment = new THREE.Mesh( new THREE.CubeGeometry( window.innerWidth, window.innerHeight, window.innerWidth, 7, 7, 7 ), new THREE.MeshFaceMaterial( this.material ) );
     this.enviroment.scale.x = - 1;
@@ -58,22 +60,29 @@ anomaly.Environment.prototype.initialize = function()
 
 anomaly.Environment.prototype.target = new THREE.Vector3();
 
-anomaly.Environment.prototype.loadTexture = function( path )
+anomaly.Environment.prototype.loadTexture = function( materialUrls )
 {
 
-    var texture = new THREE.Texture( this.texturePlaceholder ),
-        material = new THREE.MeshBasicMaterial( { map: texture, overdraw: true } ),
-        image = new Image(),
-        self = this;
+    var self = this,
+        material = [];        
+       
+    $(materialUrls).each(function(index, materialUrl)
+    { 
+        var image = new Image(),
+            texture = new THREE.Texture( this.texturePlaceholder ),
+            materialElem = new THREE.MeshBasicMaterial( { map: texture, overdraw: true } );
 
-    image.onload = function () {
-        texture.needsUpdate = true;
-        material.map.image = this;
+        image.onload = function () {
+            texture.needsUpdate = true;
+            materialElem.map.image = this;
 
-        self.updateEnvironment();
-    };
+            self.updateEnvironment();
+        };
 
-    image.src = path;
+        image.src = materialUrl;
+
+        material.push(materialElem);
+    });
 
     return material;
 }
