@@ -69,20 +69,41 @@ anomaly.SpinningCube.prototype.initialize = function()
     return this.object3D;
 }
 
-anomaly.SpinningCube.prototype.onDocumentKeyDown = function(event)
+anomaly.SpinningCube.prototype.bindKeyboardEvents = function(keyboard)
 {
-    switch( event.keyCode ) {
-        // Z position +1
-        case 87: this.object3D.position.z += 1; break;
-        // Z position -1
-        case 83: this.object3D.position.z -= 1; break;
-        // X position -1
-        case 65: this.object3D.position.x -= 1; break;
-        // X position +1
-        case 68: this.object3D.position.x += 1; break;
-        // Y position +1
-        case 38: this.object3D.position.y += 1; break;
-        // Y position -1
-        case 40: this.object3D.position.y -= 1; break;
+    // Z position +1
+    if (keyboard.pressed("w"))
+    { 
+        this.object3D.position.z += 1;
+    }
+
+    // Z position -1
+    if (keyboard.pressed("s"))
+    { 
+        this.object3D.position.z -= 1;
+    }
+
+    // X position -1
+    if (keyboard.pressed("left"))
+    { 
+        this.object3D.position.x -= 1;
+    }
+
+    // X position +1
+    if (keyboard.pressed("right"))
+    { 
+        this.object3D.position.x += 1;
+    }
+
+    // Y position +1
+    if (keyboard.pressed("down"))
+    { 
+        this.object3D.position.y += 1;
+    }
+
+    // Y position -1
+    if (keyboard.pressed("up"))
+    { 
+        this.object3D.position.y -= 1;
     }
 }

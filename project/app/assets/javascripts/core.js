@@ -14,13 +14,15 @@ anomaly.Core = function()
     this.scene;
     this.renderer;
 
-    this.cube = new anomaly.SpinningCube();
-    this.cubeThreeJsObject = this.cube.initialize();
-    this.environment = new anomaly.Environment();
-    this.environmentThreeJsObject = this.environment.initialize();
-    this.environmentTarget = this.environment.target;
-    this.viewportWidth = window.innerWidth;
-    this.viewportHeight = window.innerHeight;
+    this.cube;
+    this.cubeThreeJsObject;
+    this.environment;
+    this.environmentThreeJsObject;
+    this.environmentTarget;
+    this.viewportWidth;
+    this.viewportHeight;
+
+    this.keyboard;
 
     this.contador = 0; 
 
@@ -31,6 +33,16 @@ anomaly.Core.prototype.initialize = function()
     var self = this,
         ambient = new THREE.AmbientLight( 0xffffff ),
         pointLight = new THREE.PointLight( 0xffffff, 2 );
+
+    this.cube = new anomaly.SpinningCube();
+    this.cubeThreeJsObject = this.cube.initialize();
+    this.environment = new anomaly.Environment();
+    this.environmentThreeJsObject = this.environment.initialize();
+    this.environmentTarget = this.environment.target;
+    this.viewportWidth = window.innerWidth;
+    this.viewportHeight = window.innerHeight;
+
+    this.keyboard = new THREEx.KeyboardState();
 
     this.camera = new THREE.PerspectiveCamera( 75, this.viewportWidth / this.viewportHeight, 1, 10000 );
     this.camera.position.z = 0;
@@ -48,7 +60,7 @@ anomaly.Core.prototype.initialize = function()
 
     document.body.appendChild( self.renderer.domElement );
 
-    document.addEventListener("keydown", this.onDocumentKeyDown.bind(window, self), false);
+    //document.addEventListener("keydown", this.onDocumentKeyDown.bind(window, self), false);
 
     document.addEventListener( "mousedown", this.onDocumentMouseDown.bind(window, self), false );
     document.addEventListener( "mousemove", this.onDocumentMouseMove.bind(window, self), false );
@@ -71,6 +83,8 @@ anomaly.Core.prototype.loop = function()
     this.contador += 0.01
 
     var levitation = Math.sin(this.contador);
+
+    this.cube.bindKeyboardEvents(this.keyboard);
 
     //console.log("levitation: " + levitation + ", position y: " + this.cubeThreeJsObject.position.y);
     this.cubeThreeJsObject.position.y += levitation * 0.1;
