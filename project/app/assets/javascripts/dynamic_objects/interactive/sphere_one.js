@@ -3,11 +3,11 @@ if (typeof anomaly === "undefined")
     var anomaly = {};
 }
 
-anomaly.SpinningCube = function()
+anomaly.SphereOne = function()
 {
     this.toString = function()
     {
-        return "anomaly.SpinningCube";
+        return "anomaly.SphereOne";
     }
 
     this.object3DX = 20;
@@ -25,7 +25,7 @@ anomaly.SpinningCube = function()
 
 }
 
-anomaly.SpinningCube.prototype.initialize = function()
+anomaly.SphereOne.prototype.initialize = function()
 {
     var self = this,
         environmentMaterialUrls = [
@@ -69,7 +69,7 @@ anomaly.SpinningCube.prototype.initialize = function()
     return this.object3D;
 }
 
-anomaly.SpinningCube.prototype.bindKeyboardEvents = function(keyboard)
+anomaly.SphereOne.prototype.bindKeyboardEvents = function(keyboard)
 {
     // Z position +1
     if (keyboard.pressed("w"))
