@@ -18,8 +18,8 @@ anomaly.Core = function()
     this.environmentTarget;
     this.viewportWidth;
     this.viewportHeight;
-    this.movementX;
-    this.movementY;
+    this.lastMouseMovementX;
+    this.lastMouseMovementY;
     this.angleY;
     this.angleX;
 
@@ -51,8 +51,8 @@ anomaly.Core.prototype.initialize = function()
 
     this.canvas = document.getElementById("viewport");
     
-    this.movementX = 0;
-    this.movementY = 0;
+    this.lastMouseMovementX = 0;
+    this.lastMouseMovementY = 0;
     this.angleY = 0;
     this.angleX = 0;
 
@@ -82,34 +82,6 @@ anomaly.Core.prototype.initialize = function()
     this.bindListerners();
 }
 
-anomaly.Core.prototype.definePointerUtils = function()
-{
-    switch(true)
-    {
-        case 'pointerLockElement' in document: 
-            this.currentPointerString = 'pointerlockchange';
-            this.requestPointerLockFunction = function()
-            {
-                this.canvas.requestPointerLock();
-            }
-            break;
-        case 'mozPointerLockElement' in document: 
-            this.currentPointerString = 'mozpointerlockchange';
-            this.requestPointerLockFunction = function()
-            {
-                this.canvas.mozRequestPointerLock();
-            }
-            break;
-        case 'webkitPointerLockElement' in document: 
-            this.currentPointerString = 'webkitpointerlockchange';
-            this.requestPointerLockFunction = function()
-            {
-                this.canvas.webkitRequestPointerLock();
-            }
-            break;
-    } 
-}
-
 anomaly.Core.prototype.loop = function()
 {
     var self = this;
@@ -120,6 +92,8 @@ anomaly.Core.prototype.loop = function()
 
     var levitation = Math.sin(this.contador);
 
+    this.bindKeyboardEvents(this.keyboard);
+
     this.sphereOne.bindKeyboardEvents(this.keyboard);
 
     //console.log("levitation: " + levitation + ", position y: " + this.sphereOneThreeJsObject.position.y);
@@ -129,6 +103,33 @@ anomaly.Core.prototype.loop = function()
     this.sphereOneThreeJsObject.rotation.y += 0.01;
 
     this.renderer.render(self.scene, self.camera);
+}
+
+anomaly.Core.prototype.bindKeyboardEvents = function(keyboard)
+{
+    // Z position +1
+    if (keyboard.pressed("s"))
+    { 
+        this.scene.position.z += 1;
+    }
+
+    // Z position -1
+    if (keyboard.pressed("w"))
+    { 
+        this.scene.position.z -= 1;
+    }
+
+    // X position -1
+    if (keyboard.pressed("a"))
+    { 
+        this.scene.position.x -= 1;
+    }
+
+    // X position +1
+    if (keyboard.pressed("d"))
+    { 
+        this.scene.position.x += 1;
+    }
 }
 
 anomaly.Core.prototype.bindListerners = function()
@@ -159,6 +160,33 @@ anomaly.Core.prototype.bindListerners = function()
     window.addEventListener('resize', this.onWindowResize.bind(window, self), false);
 }
 
+anomaly.Core.prototype.definePointerUtils = function()
+{
+    switch(true)
+    {
+        case 'pointerLockElement' in document: 
+            this.currentPointerString = 'pointerlockchange';
+            this.requestPointerLockFunction = function()
+            {
+                this.canvas.requestPointerLock();
+            }
+            break;
+        case 'mozPointerLockElement' in document: 
+            this.currentPointerString = 'mozpointerlockchange';
+            this.requestPointerLockFunction = function()
+            {
+                this.canvas.mozRequestPointerLock();
+            }
+            break;
+        case 'webkitPointerLockElement' in document: 
+            this.currentPointerString = 'webkitpointerlockchange';
+            this.requestPointerLockFunction = function()
+            {
+                this.canvas.webkitRequestPointerLock();
+            }
+            break;
+    } 
+}
 
 anomaly.Core.prototype.changeCallback = function(self, event)
 {
@@ -180,19 +208,19 @@ anomaly.Core.prototype.changeCallback = function(self, event)
 
 anomaly.Core.prototype.moveCallback = function(self, event)
 {
-    var movementX = event.movementX       ||
+    var mouseMovementX = event.movementX  ||
                     event.mozMovementX    ||
                     event.webkitMovementX ||
                     0,
-        movementY = event.movementY       ||
+        mouseMovementY = event.movementY  ||
                     event.mozMovementY    ||
                     event.webkitMovementY ||
                     0,
 
-        deltaX = movementX - self.movementX,
-        deltaY = movementY - self.movementY;
+        mouseDeltaX = mouseMovementX - self.lastMouseMovementX,
+        mouseDeltaY = mouseMovementY - self.lastMouseMovementY;
 
-    self.moveLookLocked(deltaX, deltaY, self);
+    self.moveLookLocked(mouseDeltaX, mouseDeltaY, self);
 
     self.scene.rotation.x = self.angleX;
     self.scene.rotation.y = self.angleY;

@@ -72,13 +72,13 @@ anomaly.SphereOne.prototype.initialize = function()
 anomaly.SphereOne.prototype.bindKeyboardEvents = function(keyboard)
 {
     // Z position +1
-    if (keyboard.pressed("w"))
+    if (keyboard.pressed("i"))
     { 
         this.object3D.position.z += 1;
     }
 
     // Z position -1
-    if (keyboard.pressed("s"))
+    if (keyboard.pressed("k"))
     { 
         this.object3D.position.z -= 1;
     }
