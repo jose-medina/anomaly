@@ -29,12 +29,9 @@ anomaly.Environment = function()
 
 anomaly.Environment.prototype.initialize = function()
 {
+    this.texturePlaceholder = document.createElement('canvas');
 
-    this.texturePlaceholder = document.createElement( 'canvas' );
-    // this.texturePlaceholder.width = 1280;
-    // this.texturePlaceholder.height = 1280;
-
-    this.context = this.texturePlaceholder.getContext( '2d' );
+    this.context = this.texturePlaceholder.getContext('2d');
     this.context.fillStyle = 'rgb( 200, 200, 200 )';
     this.context.fillRect( 0, 0, this.texturePlaceholder.width, this.texturePlaceholder.height );
 
@@ -51,8 +48,8 @@ anomaly.Environment.prototype.initialize = function()
 
     this.material = this.loadTexture(this.materialUrls);
 
-    this.enviroment = new THREE.Mesh( new THREE.CubeGeometry( window.innerWidth, window.innerHeight, window.innerWidth, 7, 7, 7 ), new THREE.MeshFaceMaterial( this.material ) );
-    this.enviroment.scale.x = - 1;
+    this.enviroment = new THREE.Mesh(new THREE.CubeGeometry( window.innerWidth, window.innerHeight, window.innerWidth, 7, 7, 7), new THREE.MeshFaceMaterial( this.material ) );
+    this.enviroment.scale.x = -1;
 
     return this.enviroment;
     

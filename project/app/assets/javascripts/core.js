@@ -1,7 +1,4 @@
-if (typeof anomaly === "undefined")
-{
-    var anomaly = {};
-}
+if (typeof anomaly === "undefined") var anomaly = {};
 
 anomaly.Core = function()
 {
@@ -21,18 +18,28 @@ anomaly.Core = function()
     this.environmentTarget;
     this.viewportWidth;
     this.viewportHeight;
+    this.movementX;
+    this.movementY;
+    this.angleY;
+    this.angleX;
+
+    this.moveCallbackBind;
+
+    this.currentPointerString;
+    this.requestPointerLockFunction;
+
+    this.canvas;
 
     this.keyboard;
 
     this.contador = 0; 
-
 }
 
 anomaly.Core.prototype.initialize = function()
 {
     var self = this,
-        ambient = new THREE.AmbientLight( 0xffffff ),
-        pointLight = new THREE.PointLight( 0xffffff, 2 );
+        ambient = new THREE.AmbientLight(0xffffff),
+        pointLight = new THREE.PointLight(0xffffff, 2);
 
     this.sphereOne = new anomaly.SphereOne();
     this.sphereOneThreeJsObject = this.sphereOne.initialize();
@@ -42,45 +49,72 @@ anomaly.Core.prototype.initialize = function()
     this.viewportWidth = window.innerWidth;
     this.viewportHeight = window.innerHeight;
 
+    this.canvas = document.getElementById("viewport");
+    
+    this.movementX = 0;
+    this.movementY = 0;
+    this.angleY = 0;
+    this.angleX = 0;
+
     this.keyboard = new THREEx.KeyboardState();
 
-    this.camera = new THREE.PerspectiveCamera( 75, this.viewportWidth / this.viewportHeight, 1, 10000 );
+    this.camera = new THREE.PerspectiveCamera(75, this.viewportWidth / this.viewportHeight, 1, 10000);
     this.camera.position.z = 0;
-
-    //this.camera.lookAt(this.sphereOne);
 
     this.scene = new THREE.Scene();
     this.scene.matrixAutoUpdate = true;
     this.scene.add(ambient);
     this.scene.add(pointLight);
 
-    this.scene.add( this.sphereOneThreeJsObject );
-    this.scene.add( this.environmentThreeJsObject );
+    this.scene.add(self.sphereOneThreeJsObject);
+    this.scene.add(self.environmentThreeJsObject);
 
     this.renderer = new THREE.WebGLRenderer({antialias:true});
-    this.renderer.setSize( this.viewportWidth, this.viewportHeight );
+    this.renderer.setSize(this.viewportWidth, this.viewportHeight);
 
-    document.body.appendChild( this.renderer.domElement );
+    this.moveCallbackBind = this.moveCallback.bind(window, this);
 
-    //document.addEventListener("keydown", this.onDocumentKeyDown.bind(window, this), false);
+    // choose between pointerLock depending on the browser
+    this.definePointerUtils();
 
-    document.addEventListener( "mousedown", this.onDocumentMouseDown.bind(window, this), false );
-    document.addEventListener( "mousemove", this.onDocumentMouseMove.bind(window, this), false );
-    document.addEventListener( "mouseup", this.onDocumentMouseUp.bind(window, this), false );
-    document.addEventListener( "mousewheel", this.onDocumentMouseWheel.bind(window, this), false );
+    document.body.appendChild(self.renderer.domElement);
 
-    document.addEventListener( "touchstart", this.onDocumentTouchStart.bind(window, this), false );
-    document.addEventListener( "touchmove", this.onDocumentTouchMove.bind(window, this), false );
+    this.bindListerners();
+}
 
-    window.addEventListener( 'resize', this.onWindowResize.bind(window, this), false );
-
+anomaly.Core.prototype.definePointerUtils = function()
+{
+    switch(true)
+    {
+        case 'pointerLockElement' in document: 
+            this.currentPointerString = 'pointerlockchange';
+            this.requestPointerLockFunction = function()
+            {
+                this.canvas.requestPointerLock();
+            }
+            break;
+        case 'mozPointerLockElement' in document: 
+            this.currentPointerString = 'mozpointerlockchange';
+            this.requestPointerLockFunction = function()
+            {
+                this.canvas.mozRequestPointerLock();
+            }
+            break;
+        case 'webkitPointerLockElement' in document: 
+            this.currentPointerString = 'webkitpointerlockchange';
+            this.requestPointerLockFunction = function()
+            {
+                this.canvas.webkitRequestPointerLock();
+            }
+            break;
+    } 
 }
 
 anomaly.Core.prototype.loop = function()
 {
     var self = this;
     // note: three.js includes requestAnimationFrame shim
-    requestAnimationFrame( this.loop.bind(this) );  
+    requestAnimationFrame(this.loop.bind(this));  
 
     this.contador += 0.01
 
@@ -88,82 +122,155 @@ anomaly.Core.prototype.loop = function()
 
     this.sphereOne.bindKeyboardEvents(this.keyboard);
 
-    this.camera.position = this.sphereOne.position;
-    //this.camera.lookAt(this.sphereOne);
-
     //console.log("levitation: " + levitation + ", position y: " + this.sphereOneThreeJsObject.position.y);
     this.sphereOneThreeJsObject.position.y += levitation * 0.1;
 
     //this.sphereOneThreeJsObject.rotation.x += 0.1;
     this.sphereOneThreeJsObject.rotation.y += 0.01;
 
-    this.renderer.render( self.scene, self.camera );
+    this.renderer.render(self.scene, self.camera);
 }
 
-anomaly.Core.prototype.onWindowResize = function( coreInstance, event )
+anomaly.Core.prototype.bindListerners = function()
 {
+    var self = this;
 
-    coreInstance.viewportWidth = window.innerWidth;
-    coreInstance.viewportHeight = window.innerHeight;
+    if (typeof this.currentPointerString !== "undefined")
+    {
+        document.addEventListener(this.currentPointerString, this.changeCallback.bind(window, self), false);
+    }
+    else
+    {
+        document.addEventListener("mousedown", this.onDocumentMouseDown.bind(window, self), false);
+        document.addEventListener("mousemove", this.onDocumentMouseMove.bind(window, self), false);
+        document.addEventListener("mouseup", this.onDocumentMouseUp.bind(window, self), false);
+        document.addEventListener("mousewheel", this.onDocumentMouseWheel.bind(window, self), false);
+    }
 
-    coreInstance.camera.aspect = coreInstance.viewportWidth / coreInstance.viewportHeight;
-    coreInstance.camera.updateProjectionMatrix();
+    document.addEventListener("touchstart", this.onDocumentTouchStart.bind(window, self), false);
+    document.addEventListener("touchmove", this.onDocumentTouchMove.bind(window, self), false);
 
-    coreInstance.renderer.setSize( coreInstance.viewportWidth, coreInstance.viewportHeight );
+    document.addEventListener("click", function()
+    {
+        self.requestPointerLockFunction();
+    }
+    , false);
+
+    window.addEventListener('resize', this.onWindowResize.bind(window, self), false);
 }
 
-anomaly.Core.prototype.onDocumentKeyDown = function(coreInstance, event)
-{
 
+anomaly.Core.prototype.changeCallback = function(self, event)
+{
+    console.log("document.webkitPointerLockElement => " + document.webkitPointerLockElement);
+    if (document.pointerLockElement === self.canvas ||
+        document.mozPointerLockElement === self.canvas ||
+        document.webkitPointerLockElement === self.canvas)
+    {
+        // Pointer was just locked
+        // Enable the mousemove listener
+        document.addEventListener("mousemove", self.moveCallbackBind, false);
+    } else {
+        // Pointer was just unlocked
+        // Disable the mousemove listener
+        console.log("remove mousemove")
+        document.removeEventListener("mousemove", self.moveCallbackBind, false);
+    }
+}
+
+anomaly.Core.prototype.moveCallback = function(self, event)
+{
+    var movementX = event.movementX       ||
+                    event.mozMovementX    ||
+                    event.webkitMovementX ||
+                    0,
+        movementY = event.movementY       ||
+                    event.mozMovementY    ||
+                    event.webkitMovementY ||
+                    0,
+
+        deltaX = movementX - self.movementX,
+        deltaY = movementY - self.movementY;
+
+    self.moveLookLocked(deltaX, deltaY, self);
+
+    self.scene.rotation.x = self.angleX;
+    self.scene.rotation.y = self.angleY;
+    //console.log("movementX => " + movementX + ", deltaX => " + deltaX + ", angleX => " + self.angleX + ", movementY => " + movementY + ", deltaY => " + deltaY + ", angleY => " + self.angleY);
+}
+
+anomaly.Core.prototype.moveLookLocked = function(deltaX, deltaY, self)
+{
+    self.angleY += deltaX * 0.0025;
+
+    while (self.angleY < 0)
+        self.angleY += Math.PI * 2;
+    while (self.angleY >= Math.PI * 2)
+        self.angleY -= Math.PI * 2;
+            
+    self.angleX += deltaY * 0.0025;
+
+    while (self.angleX < -Math.PI * 0.5)
+        self.angleX = -Math.PI * 0.5;
+    while (self.angleX > Math.PI * 0.5)
+        self.angleX = Math.PI * 0.5;
+}
+
+anomaly.Core.prototype.onWindowResize = function(self, event)
+{
+    self.viewportWidth = window.innerWidth;
+    self.viewportHeight = window.innerHeight;
+
+    self.camera.aspect = self.viewportWidth / self.viewportHeight;
+    self.camera.updateProjectionMatrix();
+
+    self.renderer.setSize(self.viewportWidth, self.viewportHeight);
+}
+
+anomaly.Core.prototype.onDocumentKeyDown = function(self, event)
+{
     // sphereOne event
-    coreInstance.sphereOne.onDocumentKeyDown(event);
-
+    self.sphereOne.onDocumentKeyDown(event);
 }
 
-anomaly.Core.prototype.onDocumentMouseDown = function( coreInstance, event )
+anomaly.Core.prototype.onDocumentMouseDown = function(self, event)
 {
-
     //Environment event
-    coreInstance.environment.onDocumentMouseDown(event);
-    //coreInstance.camera.lookAt( coreInstance.environmentTarget );
-
+    self.environment.onDocumentMouseDown(event);
+    self.camera.lookAt(self.environmentTarget);
 }
 
-    
-anomaly.Core.prototype.onDocumentMouseMove = function( coreInstance, event )
+anomaly.Core.prototype.onDocumentMouseMove = function(self, event)
 {
-
     //Environment event
-    coreInstance.environment.onDocumentMouseMove(event);
-    //coreInstance.camera.lookAt( coreInstance.environmentTarget );
+    self.environment.onDocumentMouseMove(event);
+    self.camera.lookAt(self.environmentTarget);
 }
 
-anomaly.Core.prototype.onDocumentMouseUp = function( coreInstance, event )
+anomaly.Core.prototype.onDocumentMouseUp = function(self, event)
 {
-
     //Environment event
-    coreInstance.environment.onDocumentMouseUp(event);
-    //coreInstance.camera.lookAt( coreInstance.environmentTarget );
+    self.environment.onDocumentMouseUp(event);
+    self.camera.lookAt(self.environmentTarget);
 }
-    
-anomaly.Core.prototype.onDocumentMouseWheel = function( coreInstance, event )
+
+anomaly.Core.prototype.onDocumentMouseWheel = function(self, event)
 {
     //Core event
-    // coreInstance.camera.fov -= event.wheelDeltaY * 0.05;
-    // coreInstance.camera.updateProjectionMatrix();
-    // coreInstance.camera.lookAt( coreInstance.environmentTarget );
+    // self.camera.fov -= event.wheelDeltaY * 0.05;
+    // self.camera.updateProjectionMatrix();
+    // self.camera.lookAt(self.environmentTarget);
+}
 
-}
-    
-anomaly.Core.prototype.onDocumentTouchStart = function( coreInstance, event )
+anomaly.Core.prototype.onDocumentTouchStart = function(self, event)
 {
     //Environment event
-    coreInstance.environment.onDocumentTouchStart(event);
+    self.environment.onDocumentTouchStart(event);
 }
-    
-anomaly.Core.prototype.onDocumentTouchMove = function( coreInstance, event )
+
+anomaly.Core.prototype.onDocumentTouchMove = function(self, event)
 {
     //Environment event
-    coreInstance.environment.onDocumentTouchMove(event);
-    //coreInstance.camera.lookAt( coreInstance.environmentTarget );
+    self.environment.onDocumentTouchMove(event);
+    self.camera.lookAt(self.environmentTarget);
 }
