@@ -72,7 +72,12 @@ anomaly.Core.prototype.initialize = function()
     this.renderer = new THREE.WebGLRenderer({antialias:true});
     this.renderer.setSize(this.viewportWidth, this.viewportHeight);
 
-    this.moveCallbackBind = this.moveCallback.bind(window, this);
+    this.onDocumentMouseDownBind = this.onDocumentMouseDown.bind(window, this);
+    this.onDocumentMouseUpBind = this.onDocumentMouseUp.bind(window, this);
+    this.onDocumentMouseMoveBind = this.onDocumentMouseMove.bind(window, this);
+
+    this.environmentTarget.z = this.camera.position.z;
+    this.environmentTarget.x = this.camera.position.x;
 
     // choose between pointerLock depending on the browser
     this.definePointerUtils();
@@ -108,28 +113,34 @@ anomaly.Core.prototype.loop = function()
 anomaly.Core.prototype.bindKeyboardEvents = function(keyboard)
 {
     // Z position +1
-    if (keyboard.pressed("s"))
+    if (keyboard.pressed("w"))
     { 
-        this.scene.position.z += 1;
+        this.camera.position.z += 1;
+        this.environmentTarget.z = this.camera.position.z;
     }
 
     // Z position -1
-    if (keyboard.pressed("w"))
+    if (keyboard.pressed("s"))
     { 
-        this.scene.position.z -= 1;
+        this.camera.position.z -= 1;
+        this.environmentTarget.z = this.camera.position.z;
     }
 
     // X position -1
     if (keyboard.pressed("a"))
     { 
-        this.scene.position.x -= 1;
+        this.camera.position.x -= 1;
+        this.environmentTarget.x = this.camera.position.x;
     }
 
     // X position +1
     if (keyboard.pressed("d"))
     { 
-        this.scene.position.x += 1;
+        this.camera.position.x += 1;
+        this.environmentTarget.x = this.camera.position.x;
     }
+    //console.log("this.environmentTarget.x => " + this.environmentTarget.x + ", this.environmentTarget.y => " + this.environmentTarget.y + ", this.environmentTarget.z => " + this.environmentTarget.z);
+    //console.log("this.camera.position.x => " + this.camera.position.x + ", this.camera.position.y => " + this.camera.position.y + ", this.camera.position.z => " + this.camera.position.z);
 }
 
 anomaly.Core.prototype.bindListerners = function()
@@ -197,51 +208,16 @@ anomaly.Core.prototype.changeCallback = function(self, event)
     {
         // Pointer was just locked
         // Enable the mousemove listener
-        document.addEventListener("mousemove", self.moveCallbackBind, false);
+        console.log("activate mousemove");
+        document.addEventListener("mousedown", self.onDocumentMouseDownBind, false);
+        document.addEventListener("mousemove", self.onDocumentMouseMoveBind, false);
     } else {
         // Pointer was just unlocked
         // Disable the mousemove listener
-        console.log("remove mousemove")
-        document.removeEventListener("mousemove", self.moveCallbackBind, false);
+        console.log("remove mousemove");
+        document.removeEventListener("mousedown", self.onDocumentMouseDownBind, false);
+        document.removeEventListener("mousemove", self.onDocumentMouseMoveBind, false);
     }
-}
-
-anomaly.Core.prototype.moveCallback = function(self, event)
-{
-    var mouseMovementX = event.movementX  ||
-                    event.mozMovementX    ||
-                    event.webkitMovementX ||
-                    0,
-        mouseMovementY = event.movementY  ||
-                    event.mozMovementY    ||
-                    event.webkitMovementY ||
-                    0,
-
-        mouseDeltaX = mouseMovementX - self.lastMouseMovementX,
-        mouseDeltaY = mouseMovementY - self.lastMouseMovementY;
-
-    self.moveLookLocked(mouseDeltaX, mouseDeltaY, self);
-
-    self.scene.rotation.x = self.angleX;
-    self.scene.rotation.y = self.angleY;
-    //console.log("movementX => " + movementX + ", deltaX => " + deltaX + ", angleX => " + self.angleX + ", movementY => " + movementY + ", deltaY => " + deltaY + ", angleY => " + self.angleY);
-}
-
-anomaly.Core.prototype.moveLookLocked = function(deltaX, deltaY, self)
-{
-    self.angleY += deltaX * 0.0025;
-
-    while (self.angleY < 0)
-        self.angleY += Math.PI * 2;
-    while (self.angleY >= Math.PI * 2)
-        self.angleY -= Math.PI * 2;
-            
-    self.angleX += deltaY * 0.0025;
-
-    while (self.angleX < -Math.PI * 0.5)
-        self.angleX = -Math.PI * 0.5;
-    while (self.angleX > Math.PI * 0.5)
-        self.angleX = Math.PI * 0.5;
 }
 
 anomaly.Core.prototype.onWindowResize = function(self, event)
@@ -271,7 +247,12 @@ anomaly.Core.prototype.onDocumentMouseDown = function(self, event)
 anomaly.Core.prototype.onDocumentMouseMove = function(self, event)
 {
     //Environment event
-    self.environment.onDocumentMouseMove(event);
+    var cameraCoords = {};
+    cameraCoords.x = self.camera.position.x
+    cameraCoords.y = self.camera.position.y
+    cameraCoords.z = self.camera.position.z
+
+    self.environment.onDocumentMouseMove(event, cameraCoords);
     self.camera.lookAt(self.environmentTarget);
 }
 

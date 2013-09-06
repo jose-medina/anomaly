@@ -12,15 +12,12 @@ anomaly.Environment = function()
 
     this.texturePlaceholder;
     this.isUserInteracting = false;
-    this.onPointerDownPointerX = 0;
-    this.onPointerDownPointerY = 0;
-    this.onPointerDownLon = 0;
-    this.onPointerDownLat = 0;
     this.context;
     this.lon = 90;
     this.lat = 0;
     this.phi = 0; 
     this.theta = 0;
+    this.cameraCoords = {};
 
     this.geometry;
     this.material;
@@ -32,23 +29,34 @@ anomaly.Environment.prototype.initialize = function()
     this.texturePlaceholder = document.createElement('canvas');
 
     this.context = this.texturePlaceholder.getContext('2d');
-    this.context.fillStyle = 'rgb( 200, 200, 200 )';
-    this.context.fillRect( 0, 0, this.texturePlaceholder.width, this.texturePlaceholder.height );
+    this.context.fillStyle = 'rgb(200, 200, 200)';
+    this.context.fillRect(0, 0, this.texturePlaceholder.width, this.texturePlaceholder.height);
 
     this.materialUrls = [
-
         'assets/static_objects/environment/px.jpg', // right
         'assets/static_objects/environment/nx.jpg', // left
         'assets/static_objects/environment/py.jpg', // top
         'assets/static_objects/environment/ny.jpg', // bottom
         'assets/static_objects/environment/pz.jpg', // back
         'assets/static_objects/environment/nz.jpg'  // front
-
     ];
+
+    this.cameraCoords.x = 0;
+    this.cameraCoords.y = 0;
+    this.cameraCoords.z = 0;
+
+    // this.materialUrls = [
+    //     'assets/static_objects/chessboard_display_large.jpg', // right
+    //     'assets/static_objects/chessboard_display_large.jpg', // left
+    //     'assets/static_objects/chessboard_display_large.jpg', // top
+    //     'assets/static_objects/chessboard_display_large.jpg', // bottom
+    //     'assets/static_objects/chessboard_display_large.jpg', // back
+    //     'assets/static_objects/chessboard_display_large.jpg'  // front
+    // ];
 
     this.material = this.loadTexture(this.materialUrls);
 
-    this.enviroment = new THREE.Mesh(new THREE.CubeGeometry( window.innerWidth, window.innerHeight, window.innerWidth, 7, 7, 7), new THREE.MeshFaceMaterial( this.material ) );
+    this.enviroment = new THREE.Mesh(new THREE.CubeGeometry(window.innerWidth, window.innerHeight, window.innerWidth, 7, 7, 7), new THREE.MeshFaceMaterial(this.material));
     this.enviroment.scale.x = -1;
 
     return this.enviroment;
@@ -57,17 +65,16 @@ anomaly.Environment.prototype.initialize = function()
 
 anomaly.Environment.prototype.target = new THREE.Vector3();
 
-anomaly.Environment.prototype.loadTexture = function( materialUrls )
+anomaly.Environment.prototype.loadTexture = function(materialUrls)
 {
-
     var self = this,
         material = [];        
        
     $(materialUrls).each(function(index, materialUrl)
     { 
         var image = new Image(),
-            texture = new THREE.Texture( this.texturePlaceholder ),
-            materialElem = new THREE.MeshBasicMaterial( { map: texture, overdraw: true } );
+            texture = new THREE.Texture(this.texturePlaceholder),
+            materialElem = new THREE.MeshBasicMaterial({ map: texture, overdraw: true });
 
         image.onload = function () {
             texture.needsUpdate = true;
@@ -84,84 +91,60 @@ anomaly.Environment.prototype.loadTexture = function( materialUrls )
     return material;
 }
 
-
 anomaly.Environment.prototype.updateEnvironment = function()
 {
-    this.lat = Math.max( - 85, Math.min( 85, this.lat ) );
-    this.phi = THREE.Math.degToRad( 90 - this.lat );
-    this.theta = THREE.Math.degToRad( this.lon );
+    this.lat = Math.max(-85, Math.min(85, this.lat));
+    this.phi = THREE.Math.degToRad(90 - this.lat);
+    this.theta = THREE.Math.degToRad(this.lon);
 
-    this.target.x = 500 * Math.sin( this.phi ) * Math.cos( this.theta );
-    this.target.y = 500 * Math.cos( this.phi );
-    this.target.z = 500 * Math.sin( this.phi ) * Math.sin( this.theta );
+    this.target.x = 500 * Math.sin(this.phi) * Math.cos(this.theta) + this.cameraCoords.x;
+    this.target.y = 500 * Math.cos(this.phi) + this.cameraCoords.y;
+    this.target.z = 500 * Math.sin(this.phi) * Math.sin(this.theta) + this.cameraCoords.z;
+    // console.log("latitude => " + this.lat + ", longitude => " + this.lon);
+    // console.log("this.target.x => " + this.target.x + ", this.target.y => " + this.target.y + ", this.target.z => " + this.target.z);
+    // console.log("this.camera.position.x => " + this.camera.position.x + ", this.camera.position.y => " + this.camera.position.y + ", this.camera.position.z => " + this.camera.position.z);
 }
 
-
-anomaly.Environment.prototype.onDocumentMouseDown = function( event )
+anomaly.Environment.prototype.onDocumentMouseDown = function(event)
 {
-
     event.preventDefault();
 
     this.isUserInteracting = true;
 
-    this.onPointerDownPointerX = event.clientX;
-    this.onPointerDownPointerY = event.clientY;
+    this.lon = event.clientX * 0.1;
+    this.lat = event.clientY * 0.1;
 
-    this.onPointerDownLon = this.lon;
-    this.onPointerDownLat = this.lat;
-
+    //console.log("latitude => " + this.lat + ", longitude => " + this.lon);
 }
-
-    
-anomaly.Environment.prototype.onDocumentMouseMove = function( event )
+  
+anomaly.Environment.prototype.onDocumentMouseMove = function(event, cameraCoords)
 {
+    if (this.isUserInteracting)
+    {
+        var mouseMovementX =    event.movementX         ||
+                                event.mozMovementX      ||
+                                event.webkitMovementX   ||
+                                0,
+            mouseMovementY =    event.movementY         ||
+                                event.mozMovementY      ||
+                                event.webkitMovementY   ||
+                                0;
 
-    if ( this.isUserInteracting ) {
-
-        this.lon = ( this.onPointerDownPointerX - event.clientX ) * 0.1 + this.onPointerDownLon;
-        this.lat = ( event.clientY - this.onPointerDownPointerY ) * 0.1 + this.onPointerDownLat;
+        this.lon += mouseMovementX;
+        this.lat += -mouseMovementY;
+        this.cameraCoords = cameraCoords;
         this.updateEnvironment();
+        // console.log("latitude => " + this.lat + ", mouseMovementX => " + mouseMovementX + ", longitude => " + this.lon + ", mouseMovementY => " + mouseMovementY);
     }
 }
 
-anomaly.Environment.prototype.onDocumentMouseUp = function( event )
+anomaly.Environment.prototype.onDocumentMouseUp = function(event)
 {
-
     this.isUserInteracting = false;
-    this.updateEnvironment();
+    //this.updateEnvironment();
 }
     
-anomaly.Environment.prototype.onDocumentMouseWheel = function( event )
+anomaly.Environment.prototype.onDocumentMouseWheel = function(event)
 {
-    this.updateEnvironment();
-}
-    
-anomaly.Environment.prototype.onDocumentTouchStart = function( event )
-{
-
-    if ( event.touches.length == 1 ) {
-
-        event.preventDefault();
-
-        this.onPointerDownPointerX = event.touches[ 0 ].pageX;
-        this.onPointerDownPointerY = event.touches[ 0 ].pageY;
-
-        this.onPointerDownLon = this.lon;
-        this.onPointerDownLat = this.lat;
-
-    }
-}
-    
-anomaly.Environment.prototype.onDocumentTouchMove = function( event )
-{
-
-    if ( event.touches.length == 1 ) {
-
-        event.preventDefault();
-
-        this.lon = ( this.onPointerDownPointerX - event.touches[0].pageX ) * 0.1 + this.onPointerDownLon;
-        this.lat = ( event.touches[0].pageY - this.onPointerDownPointerY ) * 0.1 + this.onPointerDownLat;
-
-        this.updateEnvironment();
-    }
+    //this.updateEnvironment();
 }
