@@ -1,164 +1,145 @@
-if (typeof anomaly === "undefined")
-{
-    var anomaly = {};
-}
+(function(window, $, undefined){
 
-anomaly.Core = function()
-{
-    this.toString = function()
+    if (typeof window.anomaly === "undefined")
     {
-        return "anomaly.Core";
+        window.anomaly = {};
     }
 
-    this.camera;
-    this.scene;
-    this.renderer;
+    window.anomaly.Core = function(options)
+    {
+        this.toString = function(){
+            return "anomaly.Core";
+        }
 
-    this.cube;
-    this.cubeThreeJsObject;
-    this.environment;
-    this.environmentThreeJsObject;
-    this.environmentTarget;
-    this.viewportWidth;
-    this.viewportHeight;
+        this.defaults = {
+            contador: 0
+        }
 
-    this.keyboard;
+        this.options = $.extend(this.defaults, options);
 
-    this.contador = 0; 
+        this._initialize();
+    }
 
-}
+    window.anomaly.Core.prototype = {
 
-anomaly.Core.prototype.initialize = function()
-{
-    var self = this,
-        ambient = new THREE.AmbientLight( 0xffffff ),
-        pointLight = new THREE.PointLight( 0xffffff, 2 );
+        _initialize: function()
+        {
+            var ambient = new THREE.AmbientLight(0xffffff),
+                pointLight = new THREE.PointLight(0xffffff, 2);
 
-    this.cube = new anomaly.SpinningCube();
-    this.cubeThreeJsObject = this.cube.initialize();
-    this.environment = new anomaly.Environment();
-    this.environmentThreeJsObject = this.environment.initialize();
-    this.environmentTarget = this.environment.target;
-    this.viewportWidth = window.innerWidth;
-    this.viewportHeight = window.innerHeight;
+            this.cube = new window.anomaly.SpinningCube();
+            this.cubeObject3D = this.cube._getObject3D();
+            this.environment = new window.anomaly.Environment();
+            this.environmentMesh = this.environment._getMesh();
+            this.environmentTarget = this.environment._getTarget();
+            this.viewportWidth = window.innerWidth;
+            this.viewportHeight = window.innerHeight;
 
-    this.keyboard = new THREEx.KeyboardState();
+            this.keyboard = new THREEx.KeyboardState();
 
-    this.camera = new THREE.PerspectiveCamera( 75, this.viewportWidth / this.viewportHeight, 1, 10000 );
-    this.camera.position.z = 0;
+            this.camera = new THREE.PerspectiveCamera(75, this.viewportWidth / this.viewportHeight, 1, 10000);
+            this.camera.position.z = 0;
 
-    this.scene = new THREE.Scene();
-    this.scene.matrixAutoUpdate = true;
-    this.scene.add(ambient);
-    this.scene.add(pointLight);
+            this.scene = new THREE.Scene();
+            this.scene.matrixAutoUpdate = true;
+            this.scene.add(ambient);
+            this.scene.add(pointLight);
 
-    this.scene.add( self.cubeThreeJsObject );
-    this.scene.add( self.environmentThreeJsObject );
+            this.scene.add(this.cubeObject3D);
+            this.scene.add(this.environmentMesh);
 
-    this.renderer = new THREE.WebGLRenderer({antialias:true});
-    this.renderer.setSize( this.viewportWidth, this.viewportHeight );
+            this.renderer = new THREE.WebGLRenderer({antialias:true});
+            this.renderer.setSize(this.viewportWidth, this.viewportHeight);
 
-    document.body.appendChild( self.renderer.domElement );
+            document.body.appendChild(this.renderer.domElement);
 
-    //document.addEventListener("keydown", this.onDocumentKeyDown.bind(window, self), false);
+            this._bindEventListeners();
+            this._loop();
+        },
+        _bindEventListeners: function(){
+            //document.addEventListener("keydown", this.onDocumentKeyDown.bind(window, self), false);
 
-    document.addEventListener( "mousedown", this.onDocumentMouseDown.bind(window, self), false );
-    document.addEventListener( "mousemove", this.onDocumentMouseMove.bind(window, self), false );
-    document.addEventListener( "mouseup", this.onDocumentMouseUp.bind(window, self), false );
-    document.addEventListener( "mousewheel", this.onDocumentMouseWheel.bind(window, self), false );
+            document.addEventListener("mousedown", this.onDocumentMouseDown.bind(this), false);
+            document.addEventListener("mousemove", this.onDocumentMouseMove.bind(this), false);
+            document.addEventListener("mouseup", this.onDocumentMouseUp.bind(this), false);
+            document.addEventListener("mousewheel", this.onDocumentMouseWheel.bind(this), false);
 
-    document.addEventListener( "touchstart", this.onDocumentTouchStart.bind(window, self), false );
-    document.addEventListener( "touchmove", this.onDocumentTouchMove.bind(window, self), false );
+            document.addEventListener("touchstart", this.onDocumentTouchStart.bind(this), false);
+            document.addEventListener("touchmove", this.onDocumentTouchMove.bind(this), false);
 
-    window.addEventListener( 'resize', this.onWindowResize.bind(window, self), false );
+            window.addEventListener('resize', this.onWindowResize.bind(this), false);
+        },
+        _loop: function()
+        {
+            var self = this;
+            // note: three.js includes requestAnimationFrame shim
+            requestAnimationFrame(this._loop.bind(this));  
 
-}
+            this.options.contador += 0.01
 
-anomaly.Core.prototype.loop = function()
-{
-    var self = this;
-    // note: three.js includes requestAnimationFrame shim
-    requestAnimationFrame( this.loop.bind(this) );  
+            var levitation = Math.sin(this.options.contador);
 
-    this.contador += 0.01
+            this.cube._bindKeyboardEvents(this.keyboard);
 
-    var levitation = Math.sin(this.contador);
+            //console.log("levitation: " + levitation + ", position y: " + this.cubeObject3D.position.y);
+            this.cubeObject3D.position.y += levitation * 0.1;
 
-    this.cube.bindKeyboardEvents(this.keyboard);
+            //this.cubeObject3D.rotation.x += 0.1;
+            this.cubeObject3D.rotation.y += 0.01;
 
-    //console.log("levitation: " + levitation + ", position y: " + this.cubeThreeJsObject.position.y);
-    this.cubeThreeJsObject.position.y += levitation * 0.1;
+            this.renderer.render(self.scene, self.camera);
+        },
+        onWindowResize: function(event)
+        {
 
-    //this.cubeThreeJsObject.rotation.x += 0.1;
-    this.cubeThreeJsObject.rotation.y += 0.01;
+            this.viewportWidth = window.innerWidth;
+            this.viewportHeight = window.innerHeight;
 
-    this.renderer.render( self.scene, self.camera );
-}
+            this.camera.aspect = this.viewportWidth / this.viewportHeight;
+            this.camera.updateProjectionMatrix();
 
-anomaly.Core.prototype.onWindowResize = function( coreInstance, event )
-{
-
-    coreInstance.viewportWidth = window.innerWidth;
-    coreInstance.viewportHeight = window.innerHeight;
-
-    coreInstance.camera.aspect = coreInstance.viewportWidth / coreInstance.viewportHeight;
-    coreInstance.camera.updateProjectionMatrix();
-
-    coreInstance.renderer.setSize( coreInstance.viewportWidth, coreInstance.viewportHeight );
-}
-
-anomaly.Core.prototype.onDocumentKeyDown = function(coreInstance, event)
-{
-
-    // Cube event
-    coreInstance.cube.onDocumentKeyDown(event);
-
-}
-
-anomaly.Core.prototype.onDocumentMouseDown = function( coreInstance, event )
-{
-
-    //Environment event
-    coreInstance.environment.onDocumentMouseDown(event);
-    coreInstance.camera.lookAt( coreInstance.environmentTarget );
-
-}
-
-    
-anomaly.Core.prototype.onDocumentMouseMove = function( coreInstance, event )
-{
-
-    //Environment event
-    coreInstance.environment.onDocumentMouseMove(event);
-    coreInstance.camera.lookAt( coreInstance.environmentTarget );
-}
-
-anomaly.Core.prototype.onDocumentMouseUp = function( coreInstance, event )
-{
-
-    //Environment event
-    coreInstance.environment.onDocumentMouseUp(event);
-    coreInstance.camera.lookAt( coreInstance.environmentTarget );
-}
-    
-anomaly.Core.prototype.onDocumentMouseWheel = function( coreInstance, event )
-{
-    //Core event
-    // coreInstance.camera.fov -= event.wheelDeltaY * 0.05;
-    // coreInstance.camera.updateProjectionMatrix();
-    // coreInstance.camera.lookAt( coreInstance.environmentTarget );
-
-}
-    
-anomaly.Core.prototype.onDocumentTouchStart = function( coreInstance, event )
-{
-    //Environment event
-    coreInstance.environment.onDocumentTouchStart(event);
-}
-    
-anomaly.Core.prototype.onDocumentTouchMove = function( coreInstance, event )
-{
-    //Environment event
-    coreInstance.environment.onDocumentTouchMove(event);
-    coreInstance.camera.lookAt( coreInstance.environmentTarget );
-}
+            this.renderer.setSize(this.viewportWidth, this.viewportHeight);
+        },
+        onDocumentKeyDown: function(event)
+        {
+            // Cube event
+            this.cube.onDocumentKeyDown(event);
+        },
+        onDocumentMouseDown: function(event)
+        {
+            //Environment event
+            this.environment.onDocumentMouseDown(event);
+            this.camera.lookAt(this.environmentTarget);
+        },            
+        onDocumentMouseMove: function(event)
+        {
+            //Environment event
+            this.environment.onDocumentMouseMove(event);
+            this.camera.lookAt(this.environmentTarget);
+        },
+        onDocumentMouseUp: function(event)
+        {
+            //Environment event
+            this.environment.onDocumentMouseUp(event);
+            this.camera.lookAt(this.environmentTarget);
+        },            
+        onDocumentMouseWheel: function(event)
+        {
+            //Core event
+            // this.camera.fov -= event.wheelDeltaY * 0.05;
+            // this.camera.updateProjectionMatrix();
+            // this.camera.lookAt(this.environmentTarget);
+        },            
+        onDocumentTouchStart: function(event)
+        {
+            //Environment event
+            this.environment.onDocumentTouchStart(event);
+        },            
+        onDocumentTouchMove: function(event)
+        {
+            //Environment event
+            this.environment.onDocumentTouchMove(event);
+            this.camera.lookAt(this.environmentTarget);
+        }
+    }
+})(window, jQuery);
