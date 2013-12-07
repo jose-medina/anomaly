@@ -3,11 +3,11 @@
     if(typeof window.anomaly === "undefined")
         window.anomaly = {};
 
-    window.anomaly.SpinningCube = function(options)
+    window.anomaly.SphereOne = function(options)
     {
         this.toString = function()
         {
-            return "anomaly.SpinningCube";
+            return "anomaly.SphereOne";
         }
 
         this.defaults = {
@@ -20,7 +20,7 @@
         this._initialize();
     }
 
-    window.anomaly.SpinningCube.prototype = {
+    window.anomaly.SphereOne.prototype = {
         _initialize: function()
         {
             var environmentMaterialUrls = [

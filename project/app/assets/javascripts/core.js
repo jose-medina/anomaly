@@ -27,7 +27,7 @@
             var ambient = new THREE.AmbientLight(0xffffff),
                 pointLight = new THREE.PointLight(0xffffff, 2);
 
-            this.cube = new window.anomaly.SpinningCube();
+            this.cube = new window.anomaly.SphereOne();
             this.cubeObject3D = this.cube._getObject3D();
             this.environment = new window.anomaly.Environment();
             this.environmentMesh = this.environment._getMesh();
