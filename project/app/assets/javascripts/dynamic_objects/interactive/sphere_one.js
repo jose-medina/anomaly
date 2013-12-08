@@ -3,20 +3,17 @@
     if(typeof window.anomaly === "undefined")
         window.anomaly = {};
 
-    window.anomaly.SphereOne = function(options)
-    {
-        this.toString = function()
-        {
+    window.anomaly.SphereOne = function(options){
+        this.toString = function(){
             return "anomaly.SphereOne";
         }
 
         this.defaults = {
-            object3DX: 20,
-            object3DY: 20,
-            object3DZ: 20
+
         }
 
         this.options = $.extend(this.defaults, options);
+
         this._initialize();
     }
 
@@ -44,7 +41,7 @@
                 overdraw: true
             });
 
-            this.material2 = new THREE.MeshBasicMaterial(   
+            this.material2 = new THREE.MeshBasicMaterial(    
             {
                 color: 0xcccccc,
                 envMap: this.reflectionMaterial
@@ -52,23 +49,27 @@
 
             THREE.GeometryUtils.merge(this.geometry1,this.geometry2);
 
-            this.espher1 = new THREE.Mesh(this.geometry1, this.material1);
-            this.espher2 = new THREE.Mesh(this.geometry2, this.material2);
+            this.espher1 = new THREE.Mesh( this.geometry1, this.material1 );
+            this.espher2 = new THREE.Mesh( this.geometry2, this.material2 );
             this.object3D = new THREE.Object3D();
 
             //this.object3D.add(this.espher1);
             this.object3D.add(this.espher2);
 
             this.object3D.position.z = -400;
+            
         },
-        _bindKeyboardEvents: function(keyboard)
+        _getObject3D: function(){
+            return this.object3D;
+        },
+        _keyboardEvents: function(keyboard)
         {
             // Z position +1
-            if(keyboard.pressed("w"))
+            if(keyboard.pressed("i"))
                 this.object3D.position.z += 1;
 
             // Z position -1
-            if(keyboard.pressed("s"))
+            if(keyboard.pressed("k"))
                 this.object3D.position.z -= 1;
 
             // X position -1
@@ -86,9 +87,6 @@
             // Y position -1
             if(keyboard.pressed("up"))
                 this.object3D.position.y -= 1;
-        },
-        _getObject3D: function(){
-            return this.object3D;
         }
     }
 })(window, jQuery);

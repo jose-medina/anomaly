@@ -48,6 +48,11 @@
                 'assets/static_objects/environment/nz.jpg'  // front
             ];
 
+            this.cameraCoords = {};
+            this.cameraCoords.x = 0;
+            this.cameraCoords.y = 0;
+            this.cameraCoords.z = 0;
+
             this.material = this.loadTexture(this.materialUrls);
 
             this.environment = new THREE.Mesh(new THREE.CubeGeometry(window.innerWidth, window.innerHeight, window.innerWidth, 7, 7, 7), new THREE.MeshFaceMaterial(this.material));
@@ -88,13 +93,13 @@
         },
         updateEnvironment: function()
         {
-            this.lat = Math.max(- 85, Math.min(85, this.lat));
+            this.lat = Math.max(-85, Math.min(85, this.lat));
             this.phi = THREE.Math.degToRad(90 - this.lat);
             this.theta = THREE.Math.degToRad(this.lon);
 
-            this.target.x = 500 * Math.sin(this.phi) * Math.cos(this.theta);
-            this.target.y = 500 * Math.cos(this.phi);
-            this.target.z = 500 * Math.sin(this.phi) * Math.sin(this.theta);
+            this.target.x = 500 * Math.sin(this.phi) * Math.cos(this.theta) + this.cameraCoords.x;
+            this.target.y = 500 * Math.cos(this.phi) + this.cameraCoords.y;
+            this.target.z = 500 * Math.sin(this.phi) * Math.sin(this.theta) + this.cameraCoords.z;
         },
         onDocumentMouseDown: function(event)
         {
@@ -102,51 +107,37 @@
 
             this.isUserInteracting = true;
 
-            this.onPointerDownPointerX = event.clientX;
-            this.onPointerDownPointerY = event.clientY;
-
-            this.onPointerDownLon = this.lon;
-            this.onPointerDownLat = this.lat;
+            this.lon = event.clientX * 0.1;
+            this.lat = event.clientY * 0.1;
         },
-        onDocumentMouseMove: function(event)
+        onDocumentMouseMove: function(event, cameraCoords)
         {
-            if(this.isUserInteracting){
-                this.lon = (this.onPointerDownPointerX - event.clientX) * 0.1 + this.onPointerDownLon;
-                this.lat = (event.clientY - this.onPointerDownPointerY) * 0.1 + this.onPointerDownLat;
+            if (this.isUserInteracting)
+            {
+                var mouseMovementX =    event.movementX         ||
+                                        event.mozMovementX      ||
+                                        event.webkitMovementX   ||
+                                        0,
+                    mouseMovementY =    event.movementY         ||
+                                        event.mozMovementY      ||
+                                        event.webkitMovementY   ||
+                                        0;
+
+                this.lon += mouseMovementX;
+                this.lat += -mouseMovementY;
+                this.cameraCoords = cameraCoords;
                 this.updateEnvironment();
+                // console.log("latitude => " + this.lat + ", mouseMovementX => " + mouseMovementX + ", longitude => " + this.lon + ", mouseMovementY => " + mouseMovementY);
             }
         },
         onDocumentMouseUp: function(event)
         {
             this.isUserInteracting = false;
-            this.updateEnvironment();
+            // this.updateEnvironment();
         },
         onDocumentMouseWheel: function(event)
         {
-            this.updateEnvironment();
-        },
-        onDocumentTouchStart: function(event)
-        {
-            if(event.touches.length == 1){
-                event.preventDefault();
-
-                this.onPointerDownPointerX = event.touches[ 0 ].pageX;
-                this.onPointerDownPointerY = event.touches[ 0 ].pageY;
-
-                this.onPointerDownLon = this.lon;
-                this.onPointerDownLat = this.lat;
-            }
-        },
-        onDocumentTouchMove: function(event)
-        {
-            if(event.touches.length == 1){
-                event.preventDefault();
-
-                this.lon = (this.onPointerDownPointerX - event.touches[0].pageX) * 0.1 + this.onPointerDownLon;
-                this.lat = (event.touches[0].pageY - this.onPointerDownPointerY) * 0.1 + this.onPointerDownLat;
-
-                this.updateEnvironment();
-            }
+            // this.updateEnvironment();
         }
     }
 })(window, jQuery);
